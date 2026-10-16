@@ -72,7 +72,7 @@ export default function Sidebar({
             <img 
               alt="Logo Fe y Alegría 3" 
               className="h-8 w-8 object-contain" 
-              src="https://lh3.googleusercontent.com/aida/ADBb0uj189Nq70vIGY5MeExn0RD3xQxlUepmMlxPyxfLFTKOYH7-exuOlNb3L9joS1iTyIFi8ivMg7o--oK8ssC9ecqVv4eBWxcR-25RL7kRyiwpfKx7DKG7HFNWS53y5E9osVTw7h28yNPmiAs0ymcvZlOisrtjI-scVBMM5VzImZfuAk7itOnzrlnPPJe8YjxiQ6Wa6DtMXIsSIlNyfqtRQjY0JtAORibN-8BaSWymjbqcVrP3UY6k9VFPcZf-PT_icuL_nlIE5dtQGQ"
+              src="/logo-feyalegria3.jpeg"
             />
             <div className="flex flex-col">
               <span className="text-base font-black text-brand-red leading-tight">Fe y Alegría 3</span>

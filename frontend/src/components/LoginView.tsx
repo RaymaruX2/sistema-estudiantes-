@@ -51,7 +51,7 @@ export default function LoginView({ onLoginSuccess, onNavigateToRegister }: Logi
           <img 
             alt="Logo Fe y Alegría 3" 
             className="h-16 w-16 mb-4 object-contain" 
-            src="https://lh3.googleusercontent.com/aida/ADBb0uj189Nq70vIGY5MeExn0RD3xQxlUepmMlxPyxfLFTKOYH7-exuOlNb3L9joS1iTyIFi8ivMg7o--oK8ssC9ecqVv4eBWxcR-25RL7kRyiwpfKx7DKG7HFNWS53y5E9osVTw7h28yNPmiAs0ymcvZlOisrtjI-scVBMM5VzImZfuAk7itOnzrlnPPJe8YjxiQ6Wa6DtMXIsSIlNyfqtRQjY0JtAORibN-8BaSWymjbqcVrP3UY6k9VFPcZf-PT_icuL_nlIE5dtQGQ"
+            src="/logo-feyalegria3.jpeg"
           />
           <h2 className="text-xl font-black text-gray-900 tracking-tight">Portal de Gestión Académica</h2>
           <p className="text-xs text-gray-500 mt-1 uppercase tracking-widest font-bold">Fe y Alegría 3</p>

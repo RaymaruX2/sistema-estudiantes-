@@ -183,7 +183,7 @@ export default function Header({
               <img 
                 className="h-full w-full object-cover" 
                 alt="Avatar de Administrador" 
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuANY2ancjzuGgSCFQDQ_ilKn10Ev_cmMKVoZyZfg-oto0CK1HkQ3hR4JqHld3mKERgwnJnWKSQ3ZMOmz2cYic_q4OXnMsiSDjWiIerI1OjfgOy8cTEsxBJ2A-FIBP2-QxfHvHneRbTENkcPSuoYzN_RGrp9BzIpmo2J8yQvB-2cdvYSUDE79A1kiQ2rCsViY2TPtjQdMc76O93k-8svtxOUc57FhDorTwPS_8NDJz9W6imM4Wpc493ZnZYrbZaTh-mq6gZhhmgfNAc"
+                src="/avatar.svg"
               />
             </div>
           </button>

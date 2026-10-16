@@ -22,9 +22,9 @@ jobs:
           --health-timeout=5s
           --health-retries=20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -32,16 +32,17 @@ jobs:
 
       - name: Cargar scripts SQL
         run: |
-          set -e
-          mysql -h127.0.0.1 -uroot -padmin < sql/01-schema.sql
+          fallo() { ERR=$(tail -15 sql.log | sed ':a;N;$!ba;s/\n/%0A/g'); echo "::error title=SQL $1::$ERR"; exit 1; }
+          mysql -h127.0.0.1 -uroot -padmin < sql/01-schema.sql > sql.log 2>&1 || fallo 01
           for f in $(ls sql/*.sql | sort | tail -n +2); do
             echo "Cargando $f"
-            mysql -h127.0.0.1 -uroot -padmin sistema_estudiantes < "$f" > /dev/null
+            mysql -h127.0.0.1 -uroot -padmin sistema_estudiantes < "$f" >> sql.log 2>&1 || fallo "$f"
           done
           # Usuario de prueba con contraseña conocida (solo para CI)
-          HASH=$(htpasswd -bnBC 10 "" Prueba123 | tr -d ':\n')
+          pip install -q bcrypt
+          HASH=$(python3 -c "import bcrypt;print(bcrypt.hashpw(b'Prueba123',bcrypt.gensalt(10)).decode())")
           mysql -h127.0.0.1 -uroot -padmin sistema_estudiantes -e \
-            "INSERT INTO usuarios (username, password_hash, nombre_completo, email, rol) VALUES ('ciadmin', '$HASH', 'Admin CI', 'ciadmin@test.pe', 'ADMIN');"
+            "INSERT INTO usuarios (username, password_hash, nombre_completo, email, rol) VALUES ('ciadmin', '$HASH', 'Admin CI', 'ciadmin@test.pe', 'ADMIN');" >> sql.log 2>&1 || fallo usuario
 
       - name: Compilar
         run: |
@@ -78,8 +79,8 @@ jobs:
       run:
         working-directory: frontend
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: '20'
       - run: npm install --no-audit --no-fund

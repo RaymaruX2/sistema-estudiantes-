@@ -29,6 +29,7 @@ public class Estudiante {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_documento", nullable = false, length = 25)
+    @Builder.Default
     private TipoDocumento tipoDocumento = TipoDocumento.DNI;
 
     @NotBlank
@@ -91,6 +92,7 @@ public class Estudiante {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "estado_matricula", nullable = false, length = 15)
+    @Builder.Default
     private EstadoMatricula estadoMatricula = EstadoMatricula.DEFINITIVA;
 
     @Size(max = 60)

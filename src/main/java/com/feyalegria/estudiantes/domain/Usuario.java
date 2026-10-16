@@ -41,8 +41,14 @@ public class Usuario {
     @Column(nullable = false, length = 20)
     private Rol rol;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean activo = true;
+
+    /** Solo para usuarios con rol PADRE: el apoderado al que representa. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "apoderado_id", foreignKey = @ForeignKey(name = "fk_usuarios_apoderado"))
+    private Apoderado apoderado;
 
     @CreationTimestamp
     @Column(name = "creado_en", nullable = false, updatable = false)

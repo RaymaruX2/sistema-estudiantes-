@@ -16,8 +16,14 @@
 
             <form method="get" class="filter-card">
                 <div class="row g-2 align-items-end">
-                    <div class="col-md-10">
-                        <input name="q" th:value="${q}" class="form-control" placeholder="Buscar por apoderado o monto..."/>
+                    <div class="col-md-7">
+                        <input name="q" th:value="${q}" class="form-control" placeholder="Buscar por apoderado, DNI o descripción..."/>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="estado" class="form-select">
+                            <option value="">Todos los estados</option>
+                            <option th:each="e : ${estados}" th:value="${e}" th:text="${e.label}" th:selected="${estado == e}"></option>
+                        </select>
                     </div>
                     <div class="col-md-2">
                         <button class="btn btn-primary w-100"><i class="bi bi-search"></i> Buscar</button>
@@ -46,8 +52,8 @@
                             <td class="fw-semibold" th:text="${p.apoderado.nombreCompleto}"></td>
                             <td class="text-muted" th:text="${p.fechaPago}"></td>
                             <td th:text="${p.descripcion}"></td>
-                            <td th:text="${p.monto}"></td>
-                            <td><span class="chip chip-grade" th:text="${p.estado}"></span></td>
+                            <td class="fw-semibold" th:text="${'S/ ' + #numbers.formatDecimal(p.monto, 1, 'COMMA', 2, 'POINT')}"></td>
+                            <td><span class="badge" th:classappend="${'text-bg-' + p.estado.bootstrap}" th:text="${p.estado.label}"></span></td>
                             <td class="text-end">
                                 <a th:href="@{/pagos/{id}/editar(id=${p.id})}" class="btn-icon" title="Editar"><i class="bi bi-pencil"></i></a>
                                 <form th:action="@{/pagos/{id}/eliminar(id=${p.id})}" method="post" class="d-inline js-confirm" data-confirm="Se eliminará este pago">
@@ -57,6 +63,14 @@
                         </tr>
                         </tbody>
                     </table>
+                </div>
+                <div class="d-flex justify-content-between align-items-center px-3 py-3 border-top" th:if="${pagos.totalPages > 1}">
+                    <a class="btn btn-sm btn-outline-secondary" th:classappend="${pagos.first} ? 'disabled'"
+                       th:href="@{/pagos(q=${q},estado=${estado},page=${pagos.number - 1})}"><i class="bi bi-chevron-left"></i> Anterior</a>
+                    <span class="small text-muted">Página <span th:text="${pagos.number + 1}"></span> de <span th:text="${pagos.totalPages}"></span>
+                        · <span th:text="${pagos.totalElements}"></span> registros</span>
+                    <a class="btn btn-sm btn-outline-secondary" th:classappend="${pagos.last} ? 'disabled'"
+                       th:href="@{/pagos(q=${q},estado=${estado},page=${pagos.number + 1})}">Siguiente <i class="bi bi-chevron-right"></i></a>
                 </div>
             </div>
         </main>

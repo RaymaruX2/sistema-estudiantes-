@@ -18,7 +18,13 @@
         <div class="brand-caption">Gestión Académica</div>
     </div>
 
-    <nav class="sidebar-nav">
+    <nav class="sidebar-nav" sec:authorize="hasRole('PADRE')">
+        <a th:href="@{/mi-familia}" class="side-link" th:classappend="${active == 'mi-familia'} ? 'active'">
+            <i class="bi bi-house-heart-fill"></i> Mi familia
+        </a>
+    </nav>
+
+    <nav class="sidebar-nav" sec:authorize="hasAnyRole('ADMIN','SECRETARIA')">
         <a th:href="@{/}" class="side-link" th:classappend="${active == 'dashboard'} ? 'active'">
             <i class="bi bi-grid-1x2-fill"></i> Panel de Control
         </a>
@@ -74,12 +80,12 @@
         <p class="page-sub" th:if="${subtitulo}" th:text="${subtitulo}"></p>
     </div>
 
-    <form class="topbar-search" method="get" th:action="@{/estudiantes}">
+    <form class="topbar-search" method="get" th:action="@{/estudiantes}" sec:authorize="hasAnyRole('ADMIN','SECRETARIA')">
         <i class="bi bi-search"></i>
         <input type="text" name="q" placeholder="Buscar estudiante o DNI..."/>
     </form>
 
-    <a th:href="@{/estudiantes/egresados}" class="topbar-icon" title="Egresados"><i class="bi bi-bell"></i></a>
+    <a sec:authorize="hasAnyRole('ADMIN','SECRETARIA')" th:href="@{/estudiantes/egresados}" class="topbar-icon" title="Egresados"><i class="bi bi-bell"></i></a>
     <a sec:authorize="hasRole('ADMIN')" th:href="@{/usuarios}" class="topbar-icon" title="Configuración"><i class="bi bi-gear"></i></a>
 
     <div class="topbar-user">
@@ -93,6 +99,9 @@
 
 <div th:fragment="flash">
     <div th:if="${msg}" id="flashMsg" th:attr="data-msg=${msg}" style="display:none"></div>
+    <div th:if="${errorMsg}" class="alert alert-danger d-flex align-items-center gap-2" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="${errorMsg}"></span>
+    </div>
 </div>
 
 <div th:fragment="scripts">

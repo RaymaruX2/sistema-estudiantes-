@@ -28,13 +28,24 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Rol *</label>
-                    <select th:field="*{rol}" class="form-select" required>
+                    <select th:field="*{rol}" class="form-select" required id="rolSelect">
                         <option value="">--</option>
                         <option th:each="r : ${roles}" th:value="${r}" th:text="${r}"></option>
                     </select>
                 </div>
+                <div class="mb-3" id="bloqueApoderado">
+                    <label class="form-label">Apoderado vinculado * <small class="text-muted">(solo para rol PADRE)</small></label>
+                    <input type="text" class="form-control mb-2 js-filter-select" data-target="#apoSelectUsuario"
+                           placeholder="Buscar apoderado por DNI o nombre..."/>
+                    <select name="apoderado" class="form-select" id="apoSelectUsuario">
+                        <option value="">-- Ninguno --</option>
+                        <option th:each="a : ${apoderados}" th:value="${a.id}"
+                                th:selected="${usuario.apoderado != null and usuario.apoderado.id == a.id}"
+                                th:text="${a.dni + ' - ' + a.nombreCompleto}"></option>
+                    </select>
+                </div>
                 <div class="mb-3">
-                    <label class="form-label">Contraseña
+                    <label class="form-label">Contraseña <small class="text-muted">(mínimo 8 caracteres)</small>
                         <small class="text-muted" th:if="${usuario.id != null}">(vacío = no cambiar)</small>
                     </label>
                     <input name="password" type="password" class="form-control" autocomplete="new-password"/>
@@ -53,5 +64,13 @@
     </div>
 </div>
 <div th:replace="~{fragments/layout :: scripts}"></div>
+<script>
+    (function () {
+        var rol = document.getElementById('rolSelect'), bloque = document.getElementById('bloqueApoderado');
+        function actualizar() { bloque.style.display = rol.value === 'PADRE' ? '' : 'none'; }
+        rol.addEventListener('change', actualizar);
+        actualizar();
+    })();
+</script>
 </body>
 </html>

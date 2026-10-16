@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Mi familia')}"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/layout :: sidebar('mi-familia')}"></aside>
+    <div class="main-area">
+        <header th:replace="~{fragments/layout :: topbar('Mi familia', 'Portal de padres y apoderados')}"></header>
+        <main class="page">
+            <div class="page-head">
+                <div>
+                    <h1 th:text="${'Hola, ' + usuario.nombreCompleto}">Hola</h1>
+                    <p>Aquí puedes ver a tus hijos, el estado de tus pagos y tu asistencia a las reuniones del colegio.</p>
+                </div>
+            </div>
+
+            <div th:if="${d == null}" class="alert alert-warning">
+                <i class="bi bi-info-circle-fill"></i>
+                Tu cuenta todavía no está vinculada a un apoderado. Comunícate con secretaría para que la vinculen.
+            </div>
+
+            <th:block th:if="${d != null}">
+                <div th:replace="~{fragments/familia :: contenido(${d}, false)}"></div>
+            </th:block>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

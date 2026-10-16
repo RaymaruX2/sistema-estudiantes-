@@ -7,6 +7,8 @@ import com.feyalegria.estudiantes.service.ApoderadoService;
 import com.feyalegria.estudiantes.service.PagoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -25,18 +27,15 @@ public class PagoController {
     private final ApoderadoService apoderadoService;
 
     @GetMapping
-    public String listar(@RequestParam(required = false) String q, Model model) {
-        List<Pago> todos = service.obtenerTodos();
-
-        List<Pago> filtrados = todos.stream()
-                .filter(p -> q == null || q.isEmpty() ||
-                    p.getApoderado().getNombreCompleto().toLowerCase().contains(q.toLowerCase()) ||
-                    p.getDescripcion().toLowerCase().contains(q.toLowerCase()))
-                .sorted((a, b) -> b.getFechaPago().compareTo(a.getFechaPago()))
-                .collect(Collectors.toList());
-
-        model.addAttribute("pagos", filtrados);
+    public String listar(@RequestParam(required = false) String q,
+                         @RequestParam(required = false) EstadoPago estado,
+                         @RequestParam(defaultValue = "0") int page,
+                         Model model) {
+        model.addAttribute("pagos", service.buscar(q, estado, PageRequest.of(Math.max(page, 0), 20,
+                Sort.by(Sort.Direction.DESC, "fechaPago").and(Sort.by(Sort.Direction.DESC, "id")))));
         model.addAttribute("q", q);
+        model.addAttribute("estado", estado);
+        model.addAttribute("estados", EstadoPago.values());
         return "pagos/lista";
     }
 

@@ -1,6 +1,7 @@
 package com.feyalegria.estudiantes.service;
 
 import com.feyalegria.estudiantes.domain.Apoderado;
+import com.feyalegria.estudiantes.domain.EstadoPago;
 import com.feyalegria.estudiantes.domain.Pago;
 import com.feyalegria.estudiantes.repository.ApoderadoRepository;
 import com.feyalegria.estudiantes.repository.PagoRepository;
@@ -33,7 +34,7 @@ public class PagoService {
 
     public Pago actualizar(Long id, Pago pagoData) {
         Pago pago = pagoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Pago no encontrado"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Pago no encontrado"));
         pago.setDescripcion(pagoData.getDescripcion());
         pago.setMonto(pagoData.getMonto());
         pago.setFechaPago(pagoData.getFechaPago());
@@ -41,12 +42,16 @@ public class PagoService {
         pago.setEstado(pagoData.getEstado());
         pago.setComprobante(pagoData.getComprobante());
         pago.setObservaciones(pagoData.getObservaciones());
+        if (pagoData.getApoderado() != null && pagoData.getApoderado().getId() != null) {
+            pago.setApoderado(apoderadoRepository.findById(pagoData.getApoderado().getId())
+                    .orElseThrow(() -> new RecursoNoEncontradoException("Apoderado no encontrado")));
+        }
         return pagoRepository.save(pago);
     }
 
     public Pago obtener(Long id) {
         return pagoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Pago no encontrado"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Pago no encontrado"));
     }
 
     public Page<Pago> obtenerPorApoderado(Long apoderadoId, Pageable pageable) {
@@ -71,7 +76,13 @@ public class PagoService {
         return total != null ? total : BigDecimal.ZERO;
     }
 
+    @Transactional(readOnly = true)
+    public Page<Pago> buscar(String q, EstadoPago estado, Pageable pageable) {
+        return pagoRepository.buscar(q, estado, pageable);
+    }
+
     public void eliminar(Long id) {
+        obtener(id);
         pagoRepository.deleteById(id);
     }
 }

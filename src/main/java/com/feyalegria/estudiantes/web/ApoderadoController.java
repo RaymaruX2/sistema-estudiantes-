@@ -32,6 +32,12 @@ public class ApoderadoController {
         return "apoderados/lista";
     }
 
+    @GetMapping("/{id}")
+    public String detalle(@PathVariable Long id, Model model) {
+        model.addAttribute("d", service.detalle(id));
+        return "apoderados/detalle";
+    }
+
     @GetMapping("/nuevo")
     public String formNuevo(Model model) {
         model.addAttribute("apoderado", new Apoderado());

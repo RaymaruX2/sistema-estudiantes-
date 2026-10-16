@@ -32,18 +32,22 @@ public class AsistenciaReunionService {
 
     public AsistenciaReunion actualizar(Long id, AsistenciaReunion asistenciaData) {
         AsistenciaReunion asistencia = asistenciaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Asistencia no encontrada"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Asistencia no encontrada"));
         asistencia.setTituloReunion(asistenciaData.getTituloReunion());
         asistencia.setFechaReunion(asistenciaData.getFechaReunion());
         asistencia.setHoraReunion(asistenciaData.getHoraReunion());
         asistencia.setAsistio(asistenciaData.getAsistio());
         asistencia.setObservaciones(asistenciaData.getObservaciones());
+        if (asistenciaData.getApoderado() != null && asistenciaData.getApoderado().getId() != null) {
+            asistencia.setApoderado(apoderadoRepository.findById(asistenciaData.getApoderado().getId())
+                    .orElseThrow(() -> new RecursoNoEncontradoException("Apoderado no encontrado")));
+        }
         return asistenciaRepository.save(asistencia);
     }
 
     public AsistenciaReunion obtener(Long id) {
         return asistenciaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Asistencia no encontrada"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Asistencia no encontrada"));
     }
 
     public Page<AsistenciaReunion> obtenerPorApoderado(Long apoderadoId, Pageable pageable) {
@@ -66,7 +70,13 @@ public class AsistenciaReunionService {
         return asistenciaRepository.countTotal(apoderadoId);
     }
 
+    @Transactional(readOnly = true)
+    public Page<AsistenciaReunion> buscar(String q, Pageable pageable) {
+        return asistenciaRepository.buscar(q, pageable);
+    }
+
     public void eliminar(Long id) {
+        obtener(id);
         asistenciaRepository.deleteById(id);
     }
 }

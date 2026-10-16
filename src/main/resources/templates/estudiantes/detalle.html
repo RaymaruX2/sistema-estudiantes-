@@ -71,8 +71,8 @@
 
                         <dt class="col-sm-4 text-muted">Apoderado</dt>
                         <dd class="col-sm-8">
-                            <span th:if="${estudiante.apoderado != null}"
-                                  th:text="${estudiante.apoderado.nombreCompleto + ' — ' + estudiante.apoderado.parentesco + ' — Tel: ' + estudiante.apoderado.telefono}"></span>
+                            <a th:if="${estudiante.apoderado != null}" th:href="@{/apoderados/{id}(id=${estudiante.apoderado.id})}"
+                                  th:text="${estudiante.apoderado.nombreCompleto + ' — ' + estudiante.apoderado.parentesco + ' — Tel: ' + estudiante.apoderado.telefono}"></a>
                             <span th:if="${estudiante.apoderado == null}" class="text-muted">— Sin registrar —</span>
                         </dd>
 

@@ -28,14 +28,19 @@
                             <td class="fw-semibold" th:text="${u.username}"></td>
                             <td th:text="${u.nombreCompleto}"></td>
                             <td class="text-muted" th:text="${u.email} ?: '—'"></td>
-                            <td><span class="badge" th:classappend="${'badge-rol-' + u.rol.name()}" th:text="${u.rol}"></span></td>
+                            <td><span class="badge" th:classappend="${'badge-rol-' + u.rol.name()}" th:text="${u.rol}"></span>
+                                <div class="small text-muted" th:if="${u.apoderado != null}" th:text="${'Apoderado: ' + u.apoderado.nombreCompleto}"></div></td>
                             <td>
-                                <i class="bi" th:classappend="${u.activo} ? 'bi-check-circle-fill text-success' : 'bi-x-circle-fill text-danger'"></i>
+                                <i th:if="${u.activo}" class="bi bi-check-circle-fill text-success"></i>
+                                <span th:unless="${u.activo}" class="badge text-bg-warning">Pendiente / inactivo</span>
                             </td>
                             <td class="text-end">
+                                <form th:unless="${u.activo}" th:action="@{/usuarios/{id}/aprobar(id=${u.id})}" method="post" class="d-inline">
+                                    <button class="btn btn-sm btn-success me-1" title="Aprobar cuenta"><i class="bi bi-check-lg"></i> Aprobar</button>
+                                </form>
                                 <a th:href="@{/usuarios/{id}/editar(id=${u.id})}" class="btn-icon" title="Editar"><i class="bi bi-pencil"></i></a>
-                                <form th:action="@{/usuarios/{id}/eliminar(id=${u.id})}" method="post" class="d-inline"
-                                      onsubmit="return confirm('¿Eliminar usuario?');">
+                                <form th:action="@{/usuarios/{id}/eliminar(id=${u.id})}" method="post" class="d-inline js-confirm"
+                                      data-confirm="Se eliminará esta cuenta de usuario">
                                     <button class="btn-icon danger" title="Eliminar"><i class="bi bi-trash"></i></button>
                                 </form>
                             </td>

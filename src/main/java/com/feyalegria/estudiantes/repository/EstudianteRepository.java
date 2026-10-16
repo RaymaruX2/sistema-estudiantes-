@@ -45,4 +45,18 @@ public interface EstudianteRepository extends JpaRepository<Estudiante, Long> {
 
     @Query("SELECT e.nivel, COUNT(e) FROM Estudiante e GROUP BY e.nivel")
     List<Object[]> contarPorNivel();
+
+    @Query("""
+        SELECT e FROM Estudiante e
+        WHERE e.apoderado.id = :apoderadoId
+        ORDER BY e.apellidoPaterno, e.apellidoMaterno, e.nombres
+        """)
+    List<Estudiante> findHijosDeApoderado(@Param("apoderadoId") Long apoderadoId);
+
+    long countByApoderadoId(Long apoderadoId);
+
+    boolean existsByNumeroDocumentoAndIdNot(String numeroDocumento, Long id);
+
+    boolean existsByCodigoEstudianteAndIdNot(String codigoEstudiante, Long id);
+
 }

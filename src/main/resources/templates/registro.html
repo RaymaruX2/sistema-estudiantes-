@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Crear cuenta')}"></head>
+<body>
+<div class="auth-wrap">
+    <div class="auth-card" style="max-width:520px">
+        <div class="text-center mb-4">
+            <img class="auth-logo" th:src="@{/images/logo-feyalegria3.jpeg}" alt="Fe y Alegría 3"/>
+            <h2 class="auth-brand-title mt-3 mb-0">Crear cuenta</h2>
+            <p class="text-muted">Fe y Alegría 3 · Gestión Académica</p>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-4 p-sm-5">
+                <div th:if="${error}" class="alert alert-danger py-2 d-flex align-items-center gap-2">
+                    <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="${error}"></span>
+                </div>
+
+                <form th:action="@{/registro}" th:object="${form}" method="post" id="formRegistro">
+                    <label class="form-label small fw-bold text-uppercase text-muted">Tipo de cuenta</label>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <input type="radio" class="btn-check" th:field="*{tipo}" value="PADRE" id="tipoPadre"/>
+                            <label class="btn btn-outline-primary w-100 py-2" for="tipoPadre">
+                                <i class="bi bi-people-fill d-block fs-4"></i> Padre / apoderado
+                            </label>
+                        </div>
+                        <div class="col-6">
+                            <input type="radio" class="btn-check" th:field="*{tipo}" value="PERSONAL" id="tipoPersonal"/>
+                            <label class="btn btn-outline-primary w-100 py-2" for="tipoPersonal">
+                                <i class="bi bi-briefcase-fill d-block fs-4"></i> Personal del colegio
+                            </label>
+                        </div>
+                    </div>
+
+                    <p class="small text-muted js-padre">Usa el DNI con el que estás registrado como apoderado en el colegio.
+                        Podrás ver a tus hijos, tus pagos y tu asistencia a reuniones.</p>
+                    <p class="small text-muted js-personal">Tu cuenta quedará pendiente hasta que un administrador la apruebe.</p>
+
+                    <div class="mb-3">
+                        <label class="form-label">Nombre completo *</label>
+                        <input th:field="*{nombreCompleto}" class="form-control" required maxlength="150"/>
+                    </div>
+                    <div class="mb-3 js-padre">
+                        <label class="form-label">DNI *</label>
+                        <input th:field="*{dni}" class="form-control" inputmode="numeric" maxlength="15"/>
+                    </div>
+                    <div class="mb-3 js-personal">
+                        <label class="form-label">Nombre de usuario *</label>
+                        <input th:field="*{username}" class="form-control" maxlength="60" autocomplete="username"/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input th:field="*{email}" type="email" class="form-control" maxlength="120" autocomplete="email"/>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-sm-6">
+                            <label class="form-label">Contraseña *</label>
+                            <input th:field="*{password}" type="password" class="form-control" required minlength="8" autocomplete="new-password"/>
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label">Repetir contraseña *</label>
+                            <input th:field="*{confirmarPassword}" type="password" class="form-control" required minlength="8" autocomplete="new-password"/>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary w-100 py-2 fw-bold" type="submit">
+                        Crear cuenta <i class="bi bi-person-plus-fill"></i>
+                    </button>
+                </form>
+                <p class="text-center small mt-3 mb-0">¿Ya tienes cuenta? <a th:href="@{/login}" class="fw-bold">Inicia sesión</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script>
+    (function () {
+        function actualizar() {
+            var padre = document.getElementById('tipoPadre').checked;
+            document.querySelectorAll('.js-padre').forEach(function (el) { el.style.display = padre ? '' : 'none'; });
+            document.querySelectorAll('.js-personal').forEach(function (el) { el.style.display = padre ? 'none' : ''; });
+            document.getElementById('dni').required = padre;
+            document.getElementById('username').required = !padre;
+        }
+        document.querySelectorAll('input[name="tipo"]').forEach(function (r) { r.addEventListener('change', actualizar); });
+        actualizar();
+    })();
+</script>
+</body>
+</html>

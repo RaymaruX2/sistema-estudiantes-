@@ -66,8 +66,9 @@ jobs:
           exit 1
 
       - name: Pruebas de humo
-        run: bash ci/smoke.sh || {
-            ERR=$(grep -E "ERROR|Exception|Caused by" app.log | grep -v "DEBUG" | head -20 | sed ':a;N;$!ba;s/\n/%0A/g')
+        run: |
+          bash ci/smoke.sh || {
+            ERR=$(grep -E "ERROR|Exception|Caused by" app.log | head -20 | sed ':a;N;$!ba;s/\n/%0A/g')
             echo "::error title=Log de la app::$ERR"
             exit 1
           }

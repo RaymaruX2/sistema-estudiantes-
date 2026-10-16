@@ -26,4 +26,23 @@ public interface AsistenciaReunionRepository extends JpaRepository<AsistenciaReu
 
     @Query("SELECT a FROM AsistenciaReunion a WHERE a.fechaReunion BETWEEN :inicio AND :fin ORDER BY a.fechaReunion DESC")
     List<AsistenciaReunion> findByDateRange(@Param("inicio") LocalDate inicio, @Param("fin") LocalDate fin);
+
+    @Query(value = """
+        SELECT r FROM AsistenciaReunion r JOIN r.apoderado a
+        WHERE (:q IS NULL OR :q = ''
+            OR LOWER(CONCAT(a.nombres, ' ', a.apellidos)) LIKE LOWER(CONCAT('%', :q, '%'))
+            OR a.dni LIKE CONCAT('%', :q, '%')
+            OR LOWER(r.tituloReunion) LIKE LOWER(CONCAT('%', :q, '%')))
+        """,
+        countQuery = """
+        SELECT COUNT(r) FROM AsistenciaReunion r JOIN r.apoderado a
+        WHERE (:q IS NULL OR :q = ''
+            OR LOWER(CONCAT(a.nombres, ' ', a.apellidos)) LIKE LOWER(CONCAT('%', :q, '%'))
+            OR a.dni LIKE CONCAT('%', :q, '%')
+            OR LOWER(r.tituloReunion) LIKE LOWER(CONCAT('%', :q, '%')))
+        """)
+    Page<AsistenciaReunion> buscar(@Param("q") String q, Pageable pageable);
+
+    long countByApoderadoId(Long apoderadoId);
+
 }

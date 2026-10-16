@@ -15,6 +15,12 @@
                 <div th:if="${param.error}" class="alert alert-danger py-2 d-flex align-items-center gap-2">
                     <i class="bi bi-exclamation-triangle-fill"></i> Usuario o contraseña incorrectos
                 </div>
+                <div th:if="${param.pendiente}" class="alert alert-warning py-2 d-flex align-items-center gap-2">
+                    <i class="bi bi-hourglass-split"></i> Tu cuenta aún no fue aprobada por un administrador
+                </div>
+                <div th:if="${registroOk}" class="alert alert-success py-2 d-flex align-items-center gap-2">
+                    <i class="bi bi-check-circle-fill"></i> <span th:text="${registroOk}"></span>
+                </div>
                 <div th:if="${param.logout}" class="alert alert-info py-2 d-flex align-items-center gap-2">
                     <i class="bi bi-info-circle-fill"></i> Sesión cerrada correctamente
                 </div>
@@ -38,6 +44,9 @@
                         Ingresar <i class="bi bi-box-arrow-in-right"></i>
                     </button>
                 </form>
+                <p class="text-center small mt-3 mb-0">¿No tienes cuenta?
+                    <a th:href="@{/registro}" class="fw-bold">Regístrate aquí</a>
+                </p>
             </div>
         </div>
 

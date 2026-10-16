@@ -23,4 +23,7 @@ public interface ApoderadoRepository extends JpaRepository<Apoderado, Long> {
             OR a.telefono LIKE CONCAT('%', :q, '%'))
         """)
     Page<Apoderado> buscar(@Param("q") String q, Pageable pageable);
+
+    boolean existsByDniAndIdNot(String dni, Long id);
+
 }

@@ -40,14 +40,15 @@
                         </tr>
                         <tr th:each="a : ${apoderados.content}">
                             <td class="text-muted" th:text="${a.dni}"></td>
-                            <td class="fw-semibold" th:text="${a.nombreCompleto}"></td>
+                            <td class="fw-semibold"><a th:href="@{/apoderados/{id}(id=${a.id})}" class="text-reset" th:text="${a.nombreCompleto}"></a></td>
                             <td><span class="chip chip-grade" th:text="${a.parentesco}"></span></td>
                             <td th:text="${a.telefono}"></td>
                             <td th:text="${a.email} ?: '—'"></td>
                             <td class="text-end">
+                                <a th:href="@{/apoderados/{id}(id=${a.id})}" class="btn-icon" title="Ver hijos, pagos y asistencias"><i class="bi bi-eye"></i></a>
                                 <a th:href="@{/apoderados/{id}/editar(id=${a.id})}" class="btn-icon" title="Editar"><i class="bi bi-pencil"></i></a>
-                                <form th:action="@{/apoderados/{id}/eliminar(id=${a.id})}" method="post" class="d-inline"
-                                      onsubmit="return confirm('¿Eliminar apoderado?');">
+                                <form th:action="@{/apoderados/{id}/eliminar(id=${a.id})}" method="post" class="d-inline js-confirm"
+                                      data-confirm="También se eliminarán sus pagos y asistencias, y sus hijos quedarán sin apoderado.">
                                     <button class="btn-icon danger" title="Eliminar"><i class="bi bi-trash"></i></button>
                                 </form>
                             </td>

@@ -5,6 +5,8 @@ import com.feyalegria.estudiantes.service.ApoderadoService;
 import com.feyalegria.estudiantes.service.AsistenciaReunionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -23,17 +25,11 @@ public class AsistenciaReunionController {
     private final ApoderadoService apoderadoService;
 
     @GetMapping
-    public String listar(@RequestParam(required = false) String q, Model model) {
-        List<AsistenciaReunion> todos = service.obtenerTodas();
-
-        List<AsistenciaReunion> filtrados = todos.stream()
-                .filter(a -> q == null || q.isEmpty() ||
-                    a.getApoderado().getNombreCompleto().toLowerCase().contains(q.toLowerCase()) ||
-                    a.getTituloReunion().toLowerCase().contains(q.toLowerCase()))
-                .sorted((a, b) -> b.getFechaReunion().compareTo(a.getFechaReunion()))
-                .collect(Collectors.toList());
-
-        model.addAttribute("asistencias", filtrados);
+    public String listar(@RequestParam(required = false) String q,
+                         @RequestParam(defaultValue = "0") int page,
+                         Model model) {
+        model.addAttribute("asistencias", service.buscar(q, PageRequest.of(Math.max(page, 0), 20,
+                Sort.by(Sort.Direction.DESC, "fechaReunion").and(Sort.by(Sort.Direction.DESC, "id")))));
         model.addAttribute("q", q);
         return "asistencias/lista";
     }

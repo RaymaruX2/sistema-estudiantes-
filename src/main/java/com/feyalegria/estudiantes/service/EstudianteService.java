@@ -31,10 +31,16 @@ public class EstudianteService {
     @Transactional(readOnly = true)
     public Estudiante obtener(Long id) {
         return repo.buscarPorIdConRelaciones(id)
-                .orElseThrow(() -> new IllegalArgumentException("Estudiante no encontrado: " + id));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Estudiante no encontrado: " + id));
+    }
+
+    private void normalizar(Estudiante e) {
+        if (e.getCodigoEstudiante() != null && e.getCodigoEstudiante().isBlank()) e.setCodigoEstudiante(null);
+        if (e.getNumeroDocumento() != null) e.setNumeroDocumento(e.getNumeroDocumento().trim());
     }
 
     public Estudiante crear(Estudiante e, String usernameCreador) {
+        normalizar(e);
         if (repo.existsByNumeroDocumento(e.getNumeroDocumento())) {
             throw new IllegalArgumentException("Ya existe un estudiante con ese número de documento");
         }
@@ -50,6 +56,14 @@ public class EstudianteService {
     }
 
     public Estudiante actualizar(Long id, Estudiante datos) {
+        normalizar(datos);
+        if (repo.existsByNumeroDocumentoAndIdNot(datos.getNumeroDocumento(), id)) {
+            throw new IllegalArgumentException("Ya existe otro estudiante con ese número de documento");
+        }
+        if (datos.getCodigoEstudiante() != null && !datos.getCodigoEstudiante().isBlank()
+                && repo.existsByCodigoEstudianteAndIdNot(datos.getCodigoEstudiante(), id)) {
+            throw new IllegalArgumentException("Ya existe otro estudiante con ese código modular");
+        }
         Estudiante e = obtener(id);
         e.setCodigoEstudiante(datos.getCodigoEstudiante());
         e.setTipoDocumento(datos.getTipoDocumento());
@@ -72,7 +86,13 @@ public class EstudianteService {
         return repo.save(e);
     }
 
+    @Transactional(readOnly = true)
+    public List<Estudiante> hijosDe(Long apoderadoId) {
+        return repo.findHijosDeApoderado(apoderadoId);
+    }
+
     public void eliminar(Long id) {
+        if (!repo.existsById(id)) throw new RecursoNoEncontradoException("Estudiante no encontrado: " + id);
         repo.deleteById(id);
     }
 

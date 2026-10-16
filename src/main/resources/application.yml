@@ -30,6 +30,14 @@ server:
   error:
     include-message: always
 
+app:
+  # Clave para firmar las sesiones de la API (defínela en producción con APP_TOKEN_SECRET)
+  token:
+    secret: ${APP_TOKEN_SECRET:}
+  # Sitios que pueden usar la API (el frontend en Vercel y el entorno local)
+  cors:
+    origins: ${CORS_ORIGINS:http://localhost:3000,http://localhost:5173,https://*.vercel.app}
+
 logging:
   level:
     org.springframework.security: INFO

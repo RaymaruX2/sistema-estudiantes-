@@ -9,6 +9,7 @@ interface PrimariaViewProps {
   onEditStudent: (student: Student) => void;
   onDeleteStudent: (id: string) => void;
   onCardAction: (actionName: string) => void;
+  datosReales?: boolean;
 }
 
 export default function PrimariaView({
@@ -18,6 +19,7 @@ export default function PrimariaView({
   onEditStudent,
   onDeleteStudent,
   onCardAction,
+  datosReales = false,
 }: PrimariaViewProps) {
   // Filters State
   const [gradeFilter, setGradeFilter] = useState('Todos los grados');
@@ -63,7 +65,9 @@ export default function PrimariaView({
   // Calculate dynamic stats
   const totalStudentsCount = filtered.length;
   // Map simulated Total which matches original 482
-  const fakeTotal = 482 + (totalStudentsCount - 7);
+  const fakeTotal = datosReales
+    ? students.filter(s => s.level === 'Primaria').length
+    : 482 + (totalStudentsCount - 7);
 
   return (
     <div className="space-y-8 animate-fade-in font-sans">

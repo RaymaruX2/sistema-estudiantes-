@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActiveTab, Student, ActivityItem, CalendarEvent } from './types';
 import { INITIAL_STUDENTS, RECENT_ACTIVITIES, CALENDAR_EVENTS } from './data';
 import Sidebar from './components/Sidebar';
@@ -10,6 +10,15 @@ import SecundariaView from './components/SecundariaView';
 import EgresadosView from './components/EgresadosView';
 import LoginView from './components/LoginView';
 import RegisterView from './components/RegisterView';
+import ApoderadosView from './components/ApoderadosView';
+import PagosView from './components/PagosView';
+import AsistenciasView from './components/AsistenciasView';
+import UsuariosView from './components/UsuariosView';
+import MiFamiliaView from './components/MiFamiliaView';
+import EstudianteFormModal from './components/EstudianteFormModal';
+import { Cargando, RequiereServidor } from './components/ui';
+import { api, EstudianteApi, hayToken, MODO_DEMO, NivelApi, onSesionExpirada, UsuarioApi } from './api';
+import { aStudent } from './mappers';
 import { 
   X, BadgeAlert, CheckCircle2, AlertCircle, HelpCircle, 
   Settings2, BookOpen, GraduationCap, School, MapPin, 
@@ -21,9 +30,16 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUserEmail, setCurrentUserEmail] = useState('');
   const [authScreen, setAuthScreen] = useState<'login' | 'register'>('login');
+  // Usuario real conectado al servidor (null en modo demostración)
+  const [usuario, setUsuario] = useState<UsuarioApi | null>(null);
+  const [verificandoSesion, setVerificandoSesion] = useState(!MODO_DEMO && hayToken());
+  const [avisoLogin, setAvisoLogin] = useState('');
+  const [cargandoDatos, setCargandoDatos] = useState(false);
+  // Formulario de estudiante conectado al servidor
+  const [formEstudiante, setFormEstudiante] = useState<{ estudiante: EstudianteApi | null } | null>(null);
 
   // Main Datasets
-  const [students, setStudents] = useState<Student[]>(INITIAL_STUDENTS);
+  const [students, setStudents] = useState<Student[]>(MODO_DEMO ? INITIAL_STUDENTS : []);
   const [activities, setActivities] = useState<ActivityItem[]>(RECENT_ACTIVITIES);
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>(CALENDAR_EVENTS);
 
@@ -59,11 +75,46 @@ export default function App() {
     }, 4000);
   };
 
-  // Authentications handlers
-  const handleLoginSuccess = (email: string) => {
+  const esPadre = usuario?.rol === 'PADRE';
+
+  // Al abrir la página: recuperar la sesión guardada
+  useEffect(() => {
+    if (MODO_DEMO) return;
+    onSesionExpirada(() => {
+      setIsLoggedIn(false);
+      setUsuario(null);
+      setAuthScreen('login');
+      setAvisoLogin('Tu sesión expiró. Vuelve a iniciar sesión.');
+    });
+    if (!hayToken()) return;
+    api.yo()
+      .then((u) => entrar(u.email || u.username, u, false))
+      .catch(() => api.logout())
+      .finally(() => setVerificandoSesion(false));
+  }, []);
+
+  // Cargar los estudiantes reales cuando entra el personal del colegio
+  useEffect(() => {
+    if (MODO_DEMO || !isLoggedIn || !usuario || usuario.rol === 'PADRE') return;
+    setCargandoDatos(true);
+    api.todosLosEstudiantes()
+      .then((lista) => setStudents(lista.map(aStudent)))
+      .catch((e) => showToast(e.message, 'error'))
+      .finally(() => setCargandoDatos(false));
+  }, [isLoggedIn, usuario?.id]);
+
+  const entrar = (email: string, u: UsuarioApi | null, saludar = true) => {
     setCurrentUserEmail(email);
+    setUsuario(u);
+    setAvisoLogin('');
+    setActiveTab(u?.rol === 'PADRE' ? 'mi-familia' : 'dashboard');
     setIsLoggedIn(true);
-    showToast('Sesión Iniciada con éxito. ¡Bienvenido, Admin!', 'success');
+    if (saludar) showToast(`Sesión iniciada con éxito. ¡Bienvenido, ${u ? u.nombreCompleto : 'Admin'}!`, 'success');
+  };
+
+  // Authentications handlers
+  const handleLoginSuccess = (email: string, u?: UsuarioApi) => {
+    entrar(email, u || null);
   };
 
   const handleRegisterSuccess = (email: string) => {
@@ -73,6 +124,9 @@ export default function App() {
   };
 
   const handleLogout = () => {
+    api.logout();
+    setUsuario(null);
+    if (!MODO_DEMO) setStudents([]);
     setIsLoggedIn(false);
     setCurrentUserEmail('');
     setSearchQuery('');
@@ -116,6 +170,15 @@ export default function App() {
     if (!student) return;
 
     if (window.confirm(`¿Está seguro que desea desmatricular o eliminar el registro de ${student.fullName}?`)) {
+      if (!MODO_DEMO && student.backendId) {
+        api.eliminarEstudiante(student.backendId)
+          .then(() => {
+            setStudents(prev => prev.filter(s => s.backendId !== student.backendId));
+            showToast(`Registro eliminado: ${student.fullName}`, 'info');
+          })
+          .catch((e) => showToast(e.message, 'error'));
+        return;
+      }
       setStudents(prev => prev.filter(s => s.id !== studentId));
       showToast(`Registro eliminado: ${student.fullName}`, 'info');
 
@@ -168,6 +231,7 @@ export default function App() {
       case 'dashboard':
         return (
           <DashboardView 
+            datosReales={!MODO_DEMO}
             students={students}
             activities={activities}
             searchQuery={searchQuery}
@@ -240,6 +304,7 @@ export default function App() {
       case 'primaria':
         return (
           <PrimariaView 
+            datosReales={!MODO_DEMO}
             students={students}
             searchQuery={searchQuery}
             onAddStudent={() => setIsEnrollModalOpen(true)}
@@ -274,6 +339,7 @@ export default function App() {
       case 'egresados':
         return (
           <EgresadosView 
+            datosReales={!MODO_DEMO}
             students={students}
             searchQuery={searchQuery}
             onAddStudent={() => setIsEnrollModalOpen(true)}
@@ -321,16 +387,40 @@ export default function App() {
           </div>
         );
 
+      case 'apoderados':
+        return MODO_DEMO ? <RequiereServidor modulo="Padres y apoderados" /> : <ApoderadosView searchQuery={searchQuery} avisar={showToast} />;
+
+      case 'pagos':
+        return MODO_DEMO ? <RequiereServidor modulo="Pagos" /> : <PagosView searchQuery={searchQuery} avisar={showToast} />;
+
+      case 'asistencias':
+        return MODO_DEMO ? <RequiereServidor modulo="Asistencia a reuniones" /> : <AsistenciasView searchQuery={searchQuery} avisar={showToast} />;
+
+      case 'usuarios':
+        return MODO_DEMO || !usuario ? <RequiereServidor modulo="Usuarios" /> : <UsuariosView usuarioActual={usuario} avisar={showToast} />;
+
+      case 'mi-familia':
+        return usuario ? <MiFamiliaView usuario={usuario} /> : <RequiereServidor modulo="El portal de padres" />;
+
       default:
         return <div>Panel en mantenimiento</div>;
     }
   };
 
   // Handle Login and screen redirect transitions
+  if (verificandoSesion) {
+    return (
+      <div className="min-h-screen bg-[#f9f9f9] flex items-center justify-center">
+        <Cargando texto="Verificando sesión..." />
+      </div>
+    );
+  }
+
   if (!isLoggedIn) {
     if (authScreen === 'login') {
       return (
         <LoginView 
+          aviso={avisoLogin}
           onLoginSuccess={handleLoginSuccess}
           onNavigateToRegister={() => setAuthScreen('register')}
         />
@@ -339,6 +429,10 @@ export default function App() {
       return (
         <RegisterView 
           onRegisterSuccess={handleRegisterSuccess}
+          onRegistroServidor={(mensaje) => {
+            setAvisoLogin(mensaje);
+            setAuthScreen('login');
+          }}
           onNavigateToLogin={() => setAuthScreen('login')}
         />
       );
@@ -375,6 +469,7 @@ export default function App() {
         setIsOpen={setIsSidebarOpen}
         userEmail={currentUserEmail}
         onLogout={handleLogout}
+        rol={usuario?.rol || 'ADMIN'}
       />
 
       {/* Main Content Area Container */}
@@ -388,20 +483,52 @@ export default function App() {
           onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
           onLogout={handleLogout}
           userEmail={currentUserEmail}
+          nombreUsuario={usuario ? usuario.nombreCompleto : undefined}
+          rolUsuario={usuario ? usuario.rol : undefined}
           onOpenSettings={() => setIsSettingsModalOpen(true)}
           onOpenNotifications={() => showToast('Abriendo registro completo de alertas...', 'info')}
         />
 
         {/* Dynamic Inner Body */}
         <main className="flex-1 p-6 md:p-8 pt-24 pb-12 overflow-x-hidden">
-          {renderMainContent()}
+          {cargandoDatos && ['dashboard', 'inicial-3', 'inicial-4', 'inicial-5', 'primaria', 'secundaria', 'egresados'].includes(activeTab)
+            ? <Cargando texto="Cargando estudiantes desde el servidor..." />
+            : renderMainContent()}
         </main>
       </div>
 
       {/* ================= MODAL LAYERS AREA ================= */}
 
+      {/* Formulario conectado al servidor (matrícula y edición) */}
+      {!MODO_DEMO && (isEnrollModalOpen || (isEditModalOpen && editingStudent?.raw)) && (() => {
+        const def = getDefaultLevelAndGrade();
+        const nivelApi = ({ Inicial: 'INICIAL', Primaria: 'PRIMARIA', Secundaria: 'SECUNDARIA', Egresado: 'EGRESADO' } as const)[def.level] as NivelApi;
+        const gradoApi = ({ '3 Años': 'GRUPO_3_ANIOS', '4 Años': 'GRUPO_4_ANIOS', '5 Años': 'GRUPO_5_ANIOS' } as Record<string, string>)[def.grade];
+        const cerrar = () => { setIsEnrollModalOpen(false); setIsEditModalOpen(false); setEditingStudent(null); };
+        return (
+          <EstudianteFormModal
+            estudiante={isEditModalOpen && editingStudent?.raw ? editingStudent.raw : null}
+            nivelInicial={nivelApi}
+            gradoInicial={gradoApi}
+            onClose={cerrar}
+            onGuardado={(e, nuevo) => {
+              const st = aStudent(e);
+              setStudents(prev => nuevo ? [st, ...prev] : prev.map(s => s.backendId === e.id ? st : s));
+              cerrar();
+              if (nuevo) {
+                setActivities(prev => [{
+                  id: `act-${Date.now()}`, type: 'inscripcion', title: 'Inscripción procesada',
+                  subtitle: `${st.fullName} (${st.level} - ${st.grade})`, time: 'Hace unos instantes',
+                }, ...prev]);
+              }
+              showToast(nuevo ? `Matrícula exitosa: ${st.fullName}` : `Ficha académica actualizada: ${st.fullName}`, 'success');
+            }}
+          />
+        );
+      })()}
+
       {/* 1. Agregar Estudiante (Matrícula Nueva) Modal */}
-      {isEnrollModalOpen && (
+      {MODO_DEMO && isEnrollModalOpen && (
         <EnrollModal 
           onClose={() => setIsEnrollModalOpen(false)}
           onSubmit={handleEnrollStudent}
@@ -410,7 +537,7 @@ export default function App() {
       )}
 
       {/* 2. Editar Estudiante Modal */}
-      {isEditModalOpen && editingStudent && (
+      {MODO_DEMO && isEditModalOpen && editingStudent && (
         <EditModal 
           student={editingStudent}
           onClose={() => {
@@ -857,6 +984,23 @@ function ViewModal({ student, onClose }: { student: Student; onClose: () => void
               <span className="text-gray-400 font-semibold">Carrera Técnica:</span>
               <span className="text-blue-700 font-bold text-right truncate max-w-[180px]">{student.technicalCareer || "Computación"}</span>
             </div>
+          )}
+
+          {student.raw && (
+            <>
+              <div className="flex justify-between border-b border-gray-200/50 pb-2">
+                <span className="text-gray-400 font-semibold">Edad / Nacimiento:</span>
+                <span className="text-gray-900">{student.raw.edad} años · {student.birthDate}</span>
+              </div>
+              <div className="flex justify-between border-b border-gray-200/50 pb-2 gap-3">
+                <span className="text-gray-400 font-semibold shrink-0">Apoderado:</span>
+                <span className="text-gray-900 text-right">
+                  {student.raw.apoderadoNombre
+                    ? <>{student.raw.apoderadoNombre}{student.raw.apoderadoTelefono ? ` · ${student.raw.apoderadoTelefono}` : ''}</>
+                    : <span className="text-gray-400">Sin registrar</span>}
+                </span>
+              </div>
+            </>
           )}
 
           <div className="flex justify-between pb-1">

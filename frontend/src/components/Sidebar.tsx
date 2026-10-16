@@ -7,8 +7,14 @@ import {
   GraduationCap,
   HelpCircle,
   LogOut,
-  X
+  X,
+  Users,
+  Wallet,
+  CalendarCheck,
+  ShieldCheck,
+  Home
 } from 'lucide-react';
+import type { Rol } from '../api';
 
 interface SidebarProps {
   activeTab: ActiveTab;
@@ -17,6 +23,8 @@ interface SidebarProps {
   setIsOpen: (open: boolean) => void;
   userEmail?: string;
   onLogout: () => void;
+  /** Rol del usuario conectado (sin servidor se asume ADMIN) */
+  rol?: Rol;
 }
 
 export default function Sidebar({ 
@@ -25,15 +33,22 @@ export default function Sidebar({
   isOpen, 
   setIsOpen, 
   userEmail,
-  onLogout 
+  onLogout,
+  rol = 'ADMIN'
 }: SidebarProps) {
-  
-  const navItems = [
+
+  const navItems = rol === 'PADRE' ? [
+    { id: 'mi-familia' as ActiveTab, label: 'Mi familia', icon: Home },
+  ] : [
     { id: 'dashboard' as ActiveTab, label: 'Panel de Control', icon: LayoutDashboard },
     { id: 'inicial-3' as ActiveTab, label: 'Nivel Inicial', icon: Baby, isParent: true },
     { id: 'primaria' as ActiveTab, label: 'Nivel Primaria', icon: School },
     { id: 'secundaria' as ActiveTab, label: 'Nivel Secundaria', icon: School },
     { id: 'egresados' as ActiveTab, label: 'Egresados', icon: GraduationCap },
+    { id: 'apoderados' as ActiveTab, label: 'Padres y Apoderados', icon: Users, grupo: 'Administración' },
+    { id: 'pagos' as ActiveTab, label: 'Pagos', icon: Wallet },
+    { id: 'asistencias' as ActiveTab, label: 'Asistencia a Reuniones', icon: CalendarCheck },
+    ...(rol === 'ADMIN' ? [{ id: 'usuarios' as ActiveTab, label: 'Usuarios', icon: ShieldCheck }] : []),
   ];
 
   const handleTabClick = (tabId: ActiveTab) => {
@@ -143,9 +158,13 @@ export default function Sidebar({
               );
             }
 
+            const grupo = (item as { grupo?: string }).grupo;
             return (
+              <React.Fragment key={item.id}>
+              {grupo && (
+                <p className="px-4 pt-5 pb-1 text-[10px] uppercase tracking-wider text-gray-400 font-bold">{grupo}</p>
+              )}
               <button
-                key={item.id}
                 onClick={() => handleTabClick(item.id)}
                 className={`
                   w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-all
@@ -158,6 +177,7 @@ export default function Sidebar({
                 <Icon size={18} />
                 <span>{item.label}</span>
               </button>
+              </React.Fragment>
             );
           })}
         </nav>

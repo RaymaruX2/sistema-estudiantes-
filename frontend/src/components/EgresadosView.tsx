@@ -10,6 +10,7 @@ interface EgresadosViewProps {
   onDeleteStudent: (id: string) => void;
   onContactEmail: (student: Student) => void;
   onCardAction: (actionName: string) => void;
+  datosReales?: boolean;
 }
 
 export default function EgresadosView({
@@ -20,6 +21,7 @@ export default function EgresadosView({
   onDeleteStudent,
   onContactEmail,
   onCardAction,
+  datosReales = false,
 }: EgresadosViewProps) {
   const [selectedYear, setSelectedYear] = useState('Todos los años');
   const [selectedCareer, setSelectedCareer] = useState('Todas las especialidades');
@@ -85,7 +87,7 @@ export default function EgresadosView({
           </div>
           <div>
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Egresados Colegio</p>
-            <p className="text-2xl font-bold text-gray-950 mt-0.5">3,850</p>
+            <p className="text-2xl font-bold text-gray-950 mt-0.5">{datosReales ? students.filter(s => s.level === 'Egresado').length.toLocaleString('es-PE') : '3,850'}</p>
           </div>
         </div>
 

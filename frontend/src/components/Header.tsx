@@ -11,6 +11,9 @@ interface HeaderProps {
   userEmail?: string;
   onOpenSettings: () => void;
   onOpenNotifications: () => void;
+  /** Nombre y rol del usuario conectado */
+  nombreUsuario?: string;
+  rolUsuario?: string;
 }
 
 export default function Header({
@@ -22,6 +25,8 @@ export default function Header({
   userEmail = 'director@feyalegria3.edu.pe',
   onOpenSettings,
   onOpenNotifications,
+  nombreUsuario = 'Admin Institucional',
+  rolUsuario,
 }: HeaderProps) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -44,6 +49,16 @@ export default function Header({
         return 'Egresados (Exalumnos)';
       case 'ayuda':
         return 'Ayuda y Soporte';
+      case 'apoderados':
+        return 'Padres y Apoderados';
+      case 'pagos':
+        return 'Pagos';
+      case 'asistencias':
+        return 'Asistencia a Reuniones';
+      case 'usuarios':
+        return 'Usuarios del Sistema';
+      case 'mi-familia':
+        return 'Mi Familia';
       default:
         return 'Gestión Académica';
     }
@@ -61,6 +76,12 @@ export default function Header({
         return 'Buscar estudiante de secundaria...';
       case 'egresados':
         return 'Buscar egresado...';
+      case 'apoderados':
+        return 'Buscar apoderado por DNI, nombre o teléfono...';
+      case 'pagos':
+        return 'Buscar pago por apoderado, DNI o descripción...';
+      case 'asistencias':
+        return 'Buscar por apoderado o reunión...';
       default:
         return 'Buscar estudiante o registro...';
     }
@@ -192,10 +213,10 @@ export default function Header({
           {showProfileMenu && (
             <div className="absolute right-0 mt-3 w-56 bg-white border border-gray-100 rounded-xl shadow-lg ring-1 ring-black/5 z-50 overflow-hidden">
               <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
-                <p className="text-xs font-bold text-gray-900">Admin Institucional</p>
+                <p className="text-xs font-bold text-gray-900">{nombreUsuario}</p>
                 <p className="text-[10px] text-gray-500 truncate mt-0.5">{userEmail}</p>
                 <span className="inline-flex items-center gap-1 text-[9px] bg-red-100 text-brand-red font-bold px-1.5 py-0.5 rounded-full mt-2">
-                  <ShieldCheck size={10} /> Sede Central
+                  <ShieldCheck size={10} /> {rolUsuario || 'Sede Central'}
                 </span>
               </div>
               <div className="p-1">

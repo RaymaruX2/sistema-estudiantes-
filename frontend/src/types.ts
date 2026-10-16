@@ -1,6 +1,9 @@
+import type { EstudianteApi } from './api';
+
 export type LevelType = 'inicial-3' | 'inicial-4' | 'inicial-5' | 'primaria' | 'secundaria' | 'egresados';
 
-export type ActiveTab = 'dashboard' | LevelType | 'ayuda' | 'login' | 'register';
+export type ActiveTab = 'dashboard' | LevelType | 'ayuda' | 'login' | 'register'
+  | 'apoderados' | 'pagos' | 'asistencias' | 'usuarios' | 'mi-familia';
 
 export interface Student {
   id: string;
@@ -13,6 +16,10 @@ export interface Student {
   birthDate?: string;
   technicalCareer?: string; // e.g. 'Computación', 'Contabilidad', 'Electrónica', 'Diseño Ind.', 'Gastronomía'
   gradYear?: number;
+  /** Id real en la base de datos (solo cuando hay servidor conectado) */
+  backendId?: number;
+  /** Datos completos del backend */
+  raw?: EstudianteApi;
 }
 
 export interface ActivityItem {

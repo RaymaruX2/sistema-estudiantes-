@@ -12,6 +12,8 @@ interface DashboardViewProps {
   onEditStudent: (student: Student) => void;
   onDeleteStudent: (id: string) => void;
   onViewStudent: (student: Student) => void;
+  /** true cuando los datos vienen del servidor: se muestran los totales reales */
+  datosReales?: boolean;
 }
 
 export default function DashboardView({
@@ -24,6 +26,7 @@ export default function DashboardView({
   onEditStudent,
   onDeleteStudent,
   onViewStudent,
+  datosReales = false,
 }: DashboardViewProps) {
   // Let's filter students for lists
   const filteredStudents = students.filter(student => {
@@ -39,16 +42,19 @@ export default function DashboardView({
   const totalInDb = students.length;
   // Scale factor to simulate original 1432
   const fakeMultiplier = 1; 
-  const totalEstudiantes = 1432 + (totalInDb - 21); // Adjust dynamically relative to initial count of 21
+  const countEgresados = students.filter(s => s.level === 'Egresado').length;
+  const totalEstudiantes = datosReales
+    ? totalInDb - countEgresados
+    : 1432 + (totalInDb - 21); // Adjust dynamically relative to initial count of 21
 
   // Nivel counts
   const countInicial = students.filter(s => s.level === 'Inicial').length;
   const countPrimaria = students.filter(s => s.level === 'Primaria').length;
   const countSecundaria = students.filter(s => s.level === 'Secundaria').length;
 
-  const fakeInicial = 210 + (countInicial - 8);
-  const fakePrimaria = 640 + (countPrimaria - 7);
-  const fakeSecundaria = 582 + (countSecundaria - 5);
+  const fakeInicial = datosReales ? countInicial : 210 + (countInicial - 8);
+  const fakePrimaria = datosReales ? countPrimaria : 640 + (countPrimaria - 7);
+  const fakeSecundaria = datosReales ? countSecundaria : 582 + (countSecundaria - 5);
 
   return (
     <div className="space-y-8 animate-fade-in font-sans">
@@ -70,21 +76,21 @@ export default function DashboardView({
               <p className="text-xs text-gray-500 mb-1">Inicial</p>
               <p className="font-bold text-gray-900">{fakeInicial}</p>
               <div className="w-full bg-gray-100 h-1 rounded-full mt-2 overflow-hidden">
-                <div className="bg-red-400 h-1 rounded-full" style={{ width: `${(fakeInicial/totalEstudiantes)*100}%` }}></div>
+                <div className="bg-red-400 h-1 rounded-full" style={{ width: `${(fakeInicial/Math.max(totalEstudiantes, 1))*100}%` }}></div>
               </div>
             </div>
             <div>
               <p className="text-xs text-gray-400 mb-1">Primaria</p>
               <p className="font-bold text-gray-900">{fakePrimaria}</p>
               <div className="w-full bg-gray-100 h-1 rounded-full mt-2 overflow-hidden">
-                <div className="bg-red-600 h-1 rounded-full" style={{ width: `${(fakePrimaria/totalEstudiantes)*100}%` }}></div>
+                <div className="bg-red-600 h-1 rounded-full" style={{ width: `${(fakePrimaria/Math.max(totalEstudiantes, 1))*100}%` }}></div>
               </div>
             </div>
             <div>
               <p className="text-xs text-gray-400 mb-1">Secundaria</p>
               <p className="font-bold text-gray-900">{fakeSecundaria}</p>
               <div className="w-full bg-gray-100 h-1 rounded-full mt-2 overflow-hidden">
-                <div className="bg-red-800 h-1 rounded-full" style={{ width: `${(fakeSecundaria/totalEstudiantes)*100}%` }}></div>
+                <div className="bg-red-800 h-1 rounded-full" style={{ width: `${(fakeSecundaria/Math.max(totalEstudiantes, 1))*100}%` }}></div>
               </div>
             </div>
           </div>
@@ -94,7 +100,7 @@ export default function DashboardView({
         <div className="bg-white p-6 border border-gray-200 rounded-xl shadow-xs flex flex-col justify-between">
           <div>
             <p className="text-gray-500 font-bold text-xs uppercase tracking-wider">Egresados (Total)</p>
-            <h2 className="text-2xl font-bold text-gray-900 mt-2">3,850</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mt-2">{datosReales ? countEgresados.toLocaleString('es-PE') : '3,850'}</h2>
           </div>
           <div className="flex items-center gap-1.5 text-xs text-green-600 mt-3 font-semibold">
             <TrendingUp size={14} />

@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { ShieldAlert, LogIn, Sparkles, Check } from 'lucide-react';
+import { api, MODO_DEMO, UsuarioApi } from '../api';
 
 interface LoginViewProps {
-  onLoginSuccess: (email: string) => void;
+  onLoginSuccess: (email: string, usuario?: UsuarioApi) => void;
+  aviso?: string;
   onNavigateToRegister: () => void;
 }
 
-export default function LoginView({ onLoginSuccess, onNavigateToRegister }: LoginViewProps) {
-  const [email, setEmail] = useState('director@feyalegria3.edu.pe');
-  const [password, setPassword] = useState('*********');
+export default function LoginView({ onLoginSuccess, onNavigateToRegister, aviso }: LoginViewProps) {
+  const [email, setEmail] = useState(MODO_DEMO ? 'director@feyalegria3.edu.pe' : '');
+  const [password, setPassword] = useState(MODO_DEMO ? '*********' : '');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -22,7 +24,15 @@ export default function LoginView({ onLoginSuccess, onNavigateToRegister }: Logi
     }
 
     setIsLoading(true);
-    // Simulate real authentications delay
+    if (!MODO_DEMO) {
+      // Inicio de sesión real contra el servidor
+      api.login(email.trim(), password)
+        .then((s) => onLoginSuccess(s.usuario.email || s.usuario.username, s.usuario))
+        .catch((err: Error) => setError(err.message))
+        .finally(() => setIsLoading(false));
+      return;
+    }
+    // Modo demostración: sin servidor
     setTimeout(() => {
       setIsLoading(false);
       onLoginSuccess(email);
@@ -57,6 +67,13 @@ export default function LoginView({ onLoginSuccess, onNavigateToRegister }: Logi
           <p className="text-xs text-gray-500 mt-1 uppercase tracking-widest font-bold">Fe y Alegría 3</p>
         </div>
 
+        {aviso && !error && (
+          <div className="bg-green-50 border border-green-100 p-3 rounded-lg flex items-start gap-2.5 text-xs text-green-800">
+            <span className="mt-0.5 shrink-0"><Check size={14} /></span>
+            <p className="font-semibold leading-normal">{aviso}</p>
+          </div>
+        )}
+
         {error && (
           <div className="bg-red-50 border border-red-100 p-3 rounded-lg flex items-start gap-2.5 text-xs text-brand-red">
             <span className="mt-0.5 shrink-0"><ShieldAlert size={14} /></span>
@@ -66,12 +83,13 @@ export default function LoginView({ onLoginSuccess, onNavigateToRegister }: Logi
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Correo Electrónico</label>
+            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">{MODO_DEMO ? 'Correo Electrónico' : 'Correo, DNI o usuario'}</label>
             <input 
-              type="email" 
+              type={MODO_DEMO ? 'email' : 'text'}
+              autoComplete="username" 
               required
               className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-xs focus:ring-2 focus:ring-brand-red/10 focus:border-brand-red outline-none transition-all font-medium"
-              placeholder="director@feyalegria3.edu.pe"
+              placeholder={MODO_DEMO ? 'director@feyalegria3.edu.pe' : 'ejemplo@feyalegria3.edu.pe'}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -80,10 +98,14 @@ export default function LoginView({ onLoginSuccess, onNavigateToRegister }: Logi
           <div className="space-y-1.5">
             <div className="flex justify-between items-center">
               <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Contraseña</label>
-              <span className="text-[10px] font-semibold text-brand-red hover:underline cursor-pointer">¿Olvidó contraseña?</span>
+              <span
+                title="Pide a un administrador que te asigne una nueva contraseña"
+                onClick={() => setError('Para recuperar tu contraseña, comunícate con secretaría o con un administrador del colegio.')}
+                className="text-[10px] font-semibold text-brand-red hover:underline cursor-pointer">¿Olvidó contraseña?</span>
             </div>
             <input 
               type="password" 
+              autoComplete="current-password"
               required
               className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-xs focus:ring-2 focus:ring-brand-red/10 focus:border-brand-red outline-none transition-all font-mono"
               placeholder="••••••••"
@@ -108,6 +130,7 @@ export default function LoginView({ onLoginSuccess, onNavigateToRegister }: Logi
           </button>
         </form>
 
+        {MODO_DEMO && (<>
         <div className="relative flex py-1.5 items-center">
           <div className="flex-grow border-t border-gray-100"></div>
           <span className="flex-shrink mx-3 text-[10px] text-gray-400 font-bold uppercase tracking-widest">O</span>
@@ -123,10 +146,12 @@ export default function LoginView({ onLoginSuccess, onNavigateToRegister }: Logi
           <Sparkles size={14} className="text-amber-500 fill-amber-500" />
           Acceso Rápido de Demostración
         </button>
+        <p className="text-[10px] text-center text-gray-400 font-semibold">Modo demostración: datos de ejemplo, sin servidor conectado.</p>
+        </>)}
 
         <div className="text-center pt-2">
           <p className="text-xs text-gray-500">
-            ¿No tienes cuenta de administrador?{' '}
+            ¿No tienes cuenta?{' '}
             <span 
               onClick={onNavigateToRegister}
               className="text-brand-red font-bold hover:underline cursor-pointer"

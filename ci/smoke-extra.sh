@@ -80,7 +80,7 @@ esperar 200 "Listar asistencias" -H "$A" "$API/asistencias?q=bimestral"
 
 DET=$(curl -s -H "$A" "$API/apoderados/$APO/detalle")
 [ "$(echo "$DET" | jq '.hijos | length')" = "1" ] && ok "Detalle muestra al hijo" || fail "Detalle: hijos = $(echo "$DET" | jq -c .hijos)"
-[ "$(echo "$DET" | jq -r .totalPagado)" = "150.5" ] && ok "Detalle calcula total pagado" || fail "Detalle totalPagado = $(echo "$DET" | jq -r .totalPagado)"
+[ "$(echo "$DET" | jq '.totalPagado == 150.5')" = "true" ] && ok "Detalle calcula total pagado" || fail "Detalle totalPagado = $(echo "$DET" | jq -r .totalPagado)"
 [ "$(echo "$DET" | jq -r .porcentajeAsistencia)" = "100" ] && ok "Detalle calcula asistencia" || fail "Detalle asistencia = $(echo "$DET" | jq -r .porcentajeAsistencia)"
 esperar 200 "Ficha web del apoderado nuevo" -b "$JAR" "$BASE/apoderados/$APO"
 

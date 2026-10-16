@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:with="esEgresado=${estudiante.nivel != null and estudiante.nivel.name() == 'EGRESADO'}">
+<head th:replace="~{fragments/layout :: head('Ficha del estudiante')}"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/layout :: sidebar('estudiantes')}"></aside>
+    <div class="main-area">
+        <header th:replace="~{fragments/layout :: topbar('Ficha del Estudiante', 'Expediente académico')}"></header>
+        <main class="page">
+            <div class="page-head">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="row-avatar" style="width:48px;height:48px;font-size:16px"
+                          th:text="${#strings.toUpperCase(#strings.substring(estudiante.apellidoPaterno,0,1) + #strings.substring(estudiante.apellidoMaterno,0,1))}">AB</span>
+                    <div>
+                        <h1 th:text="${estudiante.nombreCompleto}">Nombre</h1>
+                        <p>Código: <span th:text="${estudiante.codigoEstudiante} ?: '—'"></span></p>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <a th:href="@{/estudiantes/{id}/editar(id=${estudiante.id})}" class="btn btn-primary"><i class="bi bi-pencil"></i> Editar</a>
+                    <a th:href="@{/estudiantes}" class="btn btn-light border"><i class="bi bi-arrow-left"></i> Volver</a>
+                </div>
+            </div>
+
+            <div class="card shadow-sm" style="max-width:840px">
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4 text-muted">N° Documento</dt>
+                        <dd class="col-sm-8" th:text="${estudiante.tipoDocumento + ' — ' + estudiante.numeroDocumento}"></dd>
+
+                        <dt class="col-sm-4 text-muted">Sexo / Edad</dt>
+                        <dd class="col-sm-8">
+                            <span th:text="${estudiante.sexo == T(com.feyalegria.estudiantes.domain.Sexo).M ? 'Masculino' : 'Femenino'}"></span>
+                            &middot; <span th:text="${estudiante.edad + ' años'}"></span>
+                        </dd>
+
+                        <dt class="col-sm-4 text-muted">Fecha de nacimiento</dt>
+                        <dd class="col-sm-8" th:text="${#temporals.format(estudiante.fechaNacimiento, 'dd/MM/yyyy')}"></dd>
+
+                        <dt class="col-sm-4 text-muted">Teléfono</dt>
+                        <dd class="col-sm-8" th:text="${estudiante.telefono} ?: '—'"></dd>
+
+                        <dt class="col-sm-4 text-muted">Dirección</dt>
+                        <dd class="col-sm-8" th:text="${estudiante.direccion} ?: '—'"></dd>
+
+                        <dt class="col-sm-4 text-muted">Nivel</dt>
+                        <dd class="col-sm-8"><span class="chip chip-grade" th:text="${estudiante.nivel}"></span></dd>
+
+                        <dt class="col-sm-4 text-muted" th:unless="${esEgresado}">Grado / Sección / Año</dt>
+                        <dd class="col-sm-8" th:unless="${esEgresado}"
+                            th:text="${@fmt.grado(estudiante.grado) + ' ' + estudiante.seccion + ' (' + estudiante.anioCursado + ')'}"></dd>
+
+                        <dt class="col-sm-4 text-muted" th:if="${esEgresado}">Año de egreso</dt>
+                        <dd class="col-sm-8" th:if="${esEgresado}" th:text="${estudiante.anioCursado}"></dd>
+
+                        <dt class="col-sm-4 text-muted"
+                            th:if="${estudiante.carreraTecnica != null and !estudiante.carreraTecnica.isEmpty()}">Carrera Técnica</dt>
+                        <dd class="col-sm-8" th:if="${estudiante.carreraTecnica != null and !estudiante.carreraTecnica.isEmpty()}">
+                            <span class="chip chip-career" th:text="${estudiante.carreraTecnica}"></span>
+                        </dd>
+
+                        <dt class="col-sm-4 text-muted"
+                            th:if="${estudiante.promocion != null and !estudiante.promocion.isEmpty()}">Promoción</dt>
+                        <dd class="col-sm-8" th:if="${estudiante.promocion != null and !estudiante.promocion.isEmpty()}">
+                            <span class="chip chip-promo" th:text="${estudiante.promocion}"></span>
+                        </dd>
+
+                        <dt class="col-sm-4 text-muted">Estado matrícula</dt>
+                        <dd class="col-sm-8"><span class="chip chip-ok" th:text="${estudiante.estadoMatricula}"></span></dd>
+
+                        <dt class="col-sm-4 text-muted">Apoderado</dt>
+                        <dd class="col-sm-8">
+                            <span th:if="${estudiante.apoderado != null}"
+                                  th:text="${estudiante.apoderado.nombreCompleto + ' — ' + estudiante.apoderado.parentesco + ' — Tel: ' + estudiante.apoderado.telefono}"></span>
+                            <span th:if="${estudiante.apoderado == null}" class="text-muted">— Sin registrar —</span>
+                        </dd>
+
+                        <dt class="col-sm-4 text-muted">Registrado</dt>
+                        <dd class="col-sm-8">
+                            <span th:text="${#temporals.format(estudiante.creadoEn, 'dd/MM/yyyy HH:mm')}"></span>
+                            <span th:if="${estudiante.creadoPor != null}" th:text="' por ' + ${estudiante.creadoPor.username}"></span>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

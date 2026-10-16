@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: sistema-estudiantes
+
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/sistema_estudiantes?useSSL=false&serverTimezone=America/Lima&characterEncoding=UTF-8&allowPublicKeyRetrieval=true}
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:admin}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+    show-sql: false
+    open-in-view: false
+
+  sql:
+    init:
+      mode: never
+
+  thymeleaf:
+    cache: false
+
+server:
+  port: ${PORT:8080}
+  error:
+    include-message: always
+
+logging:
+  level:
+    org.springframework.security: INFO
+    com.feyalegria: DEBUG

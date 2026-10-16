@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Apoderado')}"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/layout :: sidebar('apoderados')}"></aside>
+    <div class="main-area">
+        <header th:replace="~{fragments/layout :: topbar(${apoderado.id == null} ? 'Nuevo Apoderado' : 'Editar Apoderado', 'Datos del responsable')}"></header>
+        <main class="page">
+            <form th:action="@{/apoderados}" th:object="${apoderado}" method="post" class="card card-body shadow-sm" style="max-width:760px">
+                <input type="hidden" th:field="*{id}"/>
+
+                <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger">
+                    <div th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">DNI *</label>
+                        <input th:field="*{dni}" class="form-control" required maxlength="15"/>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Parentesco *</label>
+                        <select th:field="*{parentesco}" class="form-select" required>
+                            <option value="">--</option>
+                            <option th:each="p : ${parentescos}" th:value="${p}" th:text="${p}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Nombres *</label>
+                        <input th:field="*{nombres}" class="form-control" required/>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Apellidos *</label>
+                        <input th:field="*{apellidos}" class="form-control" required/>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Teléfono *</label>
+                        <input th:field="*{telefono}" class="form-control" required maxlength="20"/>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Email</label>
+                        <input th:field="*{email}" type="email" class="form-control"/>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Dirección</label>
+                        <input th:field="*{direccion}" class="form-control" maxlength="200"/>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a th:href="@{/apoderados}" class="btn btn-light border">Cancelar</a>
+                    <button class="btn btn-primary"><i class="bi bi-save"></i> Guardar</button>
+                </div>
+            </form>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

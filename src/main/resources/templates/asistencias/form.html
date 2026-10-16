@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Asistencia')}"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/layout :: sidebar('asistencias')}"></aside>
+    <div class="main-area">
+        <header th:replace="~{fragments/layout :: topbar('Registrar Asistencia', 'Agregar o actualizar asistencia')}"></header>
+        <main class="page">
+            <form th:action="@{/asistencias}" th:object="${asistencia}" method="post" class="card card-body shadow-sm" style="max-width:760px">
+                <input type="hidden" th:field="*{id}"/>
+
+                <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger">
+                    <div th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-12">
+                        <label class="form-label">Apoderado *</label>
+                        <input type="text" class="form-control mb-2 js-filter-select" data-target="#apoSelectAsis"
+                               placeholder="Buscar por DNI o nombre..."/>
+                        <select th:field="*{apoderado.id}" class="form-select" required id="apoSelectAsis">
+                            <option value="">-- Seleccionar --</option>
+                            <option th:each="a : ${apoderados}" th:value="${a.id}"
+                                    th:text="${a.dni + ' - ' + a.nombreCompleto}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Título de la Reunión *</label>
+                        <input th:field="*{tituloReunion}" class="form-control" required maxlength="255" placeholder="Ej: Reunión de Padres - Primer Trimestre"/>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Fecha de Reunión *</label>
+                        <input th:field="*{fechaReunion}" type="date" class="form-control" required/>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Hora (Opcional)</label>
+                        <input th:field="*{horaReunion}" type="time" class="form-control"/>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">¿Asistió? *</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" th:field="*{asistio}" th:value="true" id="asistioSi"/>
+                            <label class="form-check-label" for="asistioSi">
+                                <i class="bi bi-check-circle-fill text-success"></i> Sí Asistió
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" th:field="*{asistio}" th:value="false" id="asistioNo"/>
+                            <label class="form-check-label" for="asistioNo">
+                                <i class="bi bi-x-circle-fill text-danger"></i> No Asistió
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Observaciones</label>
+                        <textarea th:field="*{observaciones}" class="form-control" rows="3" maxlength="500" placeholder="Ej: Justificó inasistencia por enfermedad..."></textarea>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a th:href="@{/asistencias}" class="btn btn-light border">Cancelar</a>
+                    <button class="btn btn-primary"><i class="bi bi-save"></i> Guardar</button>
+                </div>
+            </form>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

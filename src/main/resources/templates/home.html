@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Panel de Control')}"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/layout :: sidebar('dashboard')}"></aside>
+    <div class="main-area">
+        <header th:replace="~{fragments/layout :: topbar('Resumen Institucional', 'Gestión Académica Centralizada — Fe y Alegría 3')}"></header>
+        <main class="page">
+            <div th:replace="~{fragments/layout :: flash}"></div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-xl-3">
+                    <div class="stat-card is-brand">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <span class="stat-label">Total Estudiantes</span>
+                            <span class="stat-icon" style="background:rgba(255,255,255,.18)"><i class="bi bi-people-fill"></i></span>
+                        </div>
+                        <span class="stat-value" th:text="${resumen.TOTAL}">0</span>
+                        <span class="stat-hint">Matriculados (Inicial · Primaria · Secundaria)</span>
+                    </div>
+                </div>
+                <div class="col-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <span class="stat-label">Nivel Inicial</span>
+                            <span class="stat-icon" style="background:#e7f7ee;color:#1d7a45"><i class="bi bi-emoji-smile"></i></span>
+                        </div>
+                        <span class="stat-value" th:text="${resumen.INICIAL}">0</span>
+                        <span class="stat-hint">Alumnos de inicial</span>
+                    </div>
+                </div>
+                <div class="col-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <span class="stat-label">Nivel Primaria</span>
+                            <span class="stat-icon" style="background:#fdf3e2;color:#a96a12"><i class="bi bi-backpack2"></i></span>
+                        </div>
+                        <span class="stat-value" th:text="${resumen.PRIMARIA}">0</span>
+                        <span class="stat-hint">Alumnos de primaria</span>
+                    </div>
+                </div>
+                <div class="col-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <span class="stat-label">Nivel Secundaria</span>
+                            <span class="stat-icon" style="background:#e8f0fe;color:#1a56b0"><i class="bi bi-mortarboard"></i></span>
+                        </div>
+                        <span class="stat-value" th:text="${resumen.SECUNDARIA}">0</span>
+                        <span class="stat-hint">Alumnos de secundaria</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-lg-4">
+                    <div class="stat-card h-100" style="background:linear-gradient(135deg,var(--brand),var(--brand-dark));border-color:var(--brand-dark);color:#fff">
+                        <span class="stat-label" style="color:rgba(255,255,255,.85)">Egresados (Ex Alumnos)</span>
+                        <span class="stat-value" style="color:#fff" th:text="${resumen.EGRESADO}">0</span>
+                        <span class="stat-hint" style="color:rgba(255,255,255,.85)">Comunidad de graduados con seguimiento técnico.</span>
+                        <a th:href="@{/estudiantes/egresados}" class="btn btn-light btn-sm fw-bold mt-2 align-self-start">
+                            <i class="bi bi-patch-check"></i> Ver Egresados
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-lg-8">
+                    <div class="row g-3 h-100">
+                        <div class="col-md-6">
+                            <a th:href="@{/estudiantes/nuevo}" class="quick-card h-100">
+                                <span class="qc-icon" style="background:var(--brand-soft);color:var(--brand-dark)"><i class="bi bi-person-plus-fill"></i></span>
+                                <div><h6 class="mb-1 fw-bold">Nueva Matrícula</h6><small class="text-muted">Registrar un estudiante nuevo</small></div>
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a th:href="@{/estudiantes/secundaria}" class="quick-card h-100">
+                                <span class="qc-icon" style="background:#e8f0fe;color:#1a56b0"><i class="bi bi-diagram-3"></i></span>
+                                <div><h6 class="mb-1 fw-bold">Carreras Técnicas</h6><small class="text-muted">Especialidades de secundaria</small></div>
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a th:href="@{/apoderados}" class="quick-card h-100">
+                                <span class="qc-icon" style="background:#fdf3e2;color:#a96a12"><i class="bi bi-person-badge-fill"></i></span>
+                                <div><h6 class="mb-1 fw-bold">Apoderados</h6><small class="text-muted">Padres y tutores responsables</small></div>
+                            </a>
+                        </div>
+                        <div class="col-md-6" sec:authorize="hasRole('ADMIN')">
+                            <a th:href="@{/usuarios}" class="quick-card h-100">
+                                <span class="qc-icon" style="background:#f1f3f7;color:#41495a"><i class="bi bi-shield-lock-fill"></i></span>
+                                <div><h6 class="mb-1 fw-bold">Usuarios del Sistema</h6><small class="text-muted">Solo administradores</small></div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

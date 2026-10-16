@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Asistencias')}"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/layout :: sidebar('asistencias')}"></aside>
+    <div class="main-area">
+        <header th:replace="~{fragments/layout :: topbar('Asistencias', 'Registro de asistencias a reuniones.')}"></header>
+        <main class="page">
+            <div th:replace="~{fragments/layout :: flash}"></div>
+
+            <div class="page-head">
+                <div><h1>Asistencias</h1><p>Control de asistencia de apoderados a reuniones.</p></div>
+                <a th:href="@{/asistencias/nuevo}" class="btn btn-primary btn-lg px-3"><i class="bi bi-plus-circle-fill"></i> Nueva Asistencia</a>
+            </div>
+
+            <form method="get" class="filter-card">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-10">
+                        <input name="q" th:value="${q}" class="form-control" placeholder="Buscar por apoderado o reunión..."/>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary w-100"><i class="bi bi-search"></i> Buscar</button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="card shadow-sm">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                        <tr>
+                            <th>Apoderado</th>
+                            <th>Fecha</th>
+                            <th>Reunión</th>
+                            <th>Asistencia</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${asistencias.isEmpty()}">
+                            <td colspan="5" class="text-center text-muted py-5"><i class="bi bi-inbox fs-3 d-block mb-2"></i> Sin resultados</td>
+                        </tr>
+                        <tr th:each="a : ${asistencias}">
+                            <td class="fw-semibold" th:text="${a.apoderado.nombreCompleto}"></td>
+                            <td class="text-muted" th:text="${a.fechaReunion}"></td>
+                            <td th:text="${a.tituloReunion}"></td>
+                            <td>
+                                <span th:if="${a.asistio == true}" class="badge bg-success">Asistió</span>
+                                <span th:if="${a.asistio == false}" class="badge bg-danger">No asistió</span>
+                            </td>
+                            <td class="text-end">
+                                <a th:href="@{/asistencias/{id}/editar(id=${a.id})}" class="btn-icon" title="Editar"><i class="bi bi-pencil"></i></a>
+                                <form th:action="@{/asistencias/{id}/eliminar(id=${a.id})}" method="post" class="d-inline js-confirm" data-confirm="Se eliminará este registro de asistencia">
+                                    <button class="btn-icon danger" title="Eliminar"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

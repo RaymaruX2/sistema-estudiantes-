@@ -1,0 +1,6 @@
+{
+  "name": "Fe y Alegría 3 - Gestión Académica",
+  "description": "Sistema de gestión académica integral para administradores de Nivel Inicial, Primaria y Secundaria del colegio Fe y Alegría 3.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

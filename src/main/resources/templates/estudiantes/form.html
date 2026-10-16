@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Estudiante')}"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/layout :: sidebar('estudiantes')}"></aside>
+    <div class="main-area">
+        <header th:replace="~{fragments/layout :: topbar(${estudiante.id == null} ? 'Nueva Matrícula' : 'Editar Expediente', 'Ficha académica del estudiante')}"></header>
+        <main class="page">
+
+            <form th:action="@{/estudiantes}" th:object="${estudiante}" method="post"
+                  class="card card-body shadow-sm" style="max-width:960px" id="estForm">
+                <input type="hidden" th:field="*{id}"/>
+
+                <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger">
+                    <div th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
+                </div>
+
+                <h6 class="fw-bold text-uppercase text-muted small mb-3">Datos personales</h6>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Tipo de documento</label>
+                        <select th:field="*{tipoDocumento}" class="form-select">
+                            <option th:each="t : ${tiposDocumento}" th:value="${t}" th:text="${t}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">N° de documento *</label>
+                        <input th:field="*{numeroDocumento}" class="form-control" required maxlength="15"/>
+                        <div class="invalid-feedback d-block" th:errors="*{numeroDocumento}"></div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Código modular MINEDU</label>
+                        <input th:field="*{codigoEstudiante}" class="form-control" maxlength="20"/>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Apellido paterno *</label>
+                        <input th:field="*{apellidoPaterno}" class="form-control" required/>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Apellido materno *</label>
+                        <input th:field="*{apellidoMaterno}" class="form-control" required/>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Nombres *</label>
+                        <input th:field="*{nombres}" class="form-control" required/>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Sexo *</label>
+                        <select th:field="*{sexo}" class="form-select" required>
+                            <option value="">--</option>
+                            <option value="M">Masculino</option>
+                            <option value="F">Femenino</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Fecha de nacimiento *</label>
+                        <input th:field="*{fechaNacimiento}" type="date" class="form-control" required/>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Teléfono</label>
+                        <input th:field="*{telefono}" class="form-control" maxlength="20"/>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label" id="lblAnio">Año cursado *</label>
+                        <input th:field="*{anioCursado}" type="number" class="form-control" required/>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Dirección</label>
+                        <input th:field="*{direccion}" class="form-control" maxlength="200"/>
+                    </div>
+                </div>
+
+                <hr class="my-4"/>
+                <h6 class="fw-bold text-uppercase text-muted small mb-3">Datos académicos</h6>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Nivel *</label>
+                        <select th:field="*{nivel}" class="form-select" required id="selNivel">
+                            <option value="">--</option>
+                            <option th:each="n : ${niveles}" th:value="${n}" th:text="${n}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 field-grado">
+                        <label class="form-label">Grado *</label>
+                        <select name="grado" class="form-select" id="inpGrado"
+                                th:attr="data-current=${estudiante.grado}">
+                            <option value="">--</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 field-grado">
+                        <label class="form-label">Sección *</label>
+                        <select th:field="*{seccion}" class="form-select" id="inpSeccion">
+                            <option value="">--</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Estado *</label>
+                        <select th:field="*{estadoMatricula}" class="form-select">
+                            <option th:each="e : ${estados}" th:value="${e}" th:text="${e}"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 field-carrera">
+                        <label class="form-label">Carrera / Especialidad Técnica</label>
+                        <select th:field="*{carreraTecnica}" class="form-select">
+                            <option value="">-- Sin especialidad --</option>
+                            <option th:each="c : ${carrerasTecnicas}" th:value="${c}" th:text="${c}"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 field-promocion">
+                        <label class="form-label">Promoción de Egreso</label>
+                        <input th:field="*{promocion}" class="form-control" maxlength="60"
+                               placeholder="Ej. San José, Santa Rosa..."/>
+                    </div>
+                </div>
+
+                <hr class="my-4"/>
+                <h6 class="fw-bold text-uppercase text-muted small mb-3">Apoderado</h6>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">Apoderado responsable</label>
+                        <input type="text" class="form-control mb-2 js-filter-select" data-target="#apoSelect"
+                               placeholder="Buscar apoderado por DNI o nombre..."/>
+                        <select name="apoderado" class="form-select" id="apoSelect">
+                            <option value="">-- Sin apoderado --</option>
+                            <option th:each="a : ${apoderados}"
+                                    th:value="${a.id}"
+                                    th:selected="${estudiante.apoderado != null and estudiante.apoderado.id == a.id}"
+                                    th:text="${a.dni + ' - ' + a.nombreCompleto + ' (' + a.parentesco + ')'}"></option>
+                        </select>
+                        <small class="text-muted">¿Falta el apoderado?
+                            <a th:href="@{/apoderados/nuevo}" target="_blank">Registrarlo aquí</a>
+                        </small>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a th:href="@{/estudiantes}" class="btn btn-light border">Cancelar</a>
+                    <button class="btn btn-primary"><i class="bi bi-save"></i> Guardar</button>
+                </div>
+            </form>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script>
+    (function () {
+        const sel = document.getElementById('selNivel');
+        const grados = document.querySelectorAll('.field-grado');
+        const carrera = document.querySelector('.field-carrera');
+        const promo = document.querySelector('.field-promocion');
+        const lblAnio = document.getElementById('lblAnio');
+        const inpGrado = document.getElementById('inpGrado');
+        const inpSeccion = document.getElementById('inpSeccion');
+
+        const GRADOS_POR_NIVEL = {
+            'INICIAL': [
+                ['GRUPO_3_ANIOS', '3 Años'],
+                ['GRUPO_4_ANIOS', '4 Años'],
+                ['GRUPO_5_ANIOS', '5 Años']
+            ],
+            'PRIMARIA': [
+                ['PRIMERO', 'Primero'], ['SEGUNDO', 'Segundo'], ['TERCERO', 'Tercero'],
+                ['CUARTO', 'Cuarto'], ['QUINTO', 'Quinto'], ['SEXTO', 'Sexto']
+            ],
+            'SECUNDARIA': [
+                ['PRIMERO', 'Primero'], ['SEGUNDO', 'Segundo'], ['TERCERO', 'Tercero'],
+                ['CUARTO', 'Cuarto'], ['QUINTO', 'Quinto']
+            ],
+            'EGRESADO': [
+                ['EGRESADO', 'Egresado']
+            ]
+        };
+
+        function show(el, v) { if (el) el.style.display = v ? '' : 'none'; }
+
+        function llenarGrados(nivel) {
+            const lista = GRADOS_POR_NIVEL[nivel] || [];
+            const actual = inpGrado.dataset.current || '';
+            inpGrado.innerHTML = '<option value="">--</option>';
+            let existeActual = false;
+            lista.forEach(function (g) {
+                const opt = document.createElement('option');
+                opt.value = g[0];
+                opt.textContent = g[1];
+                inpGrado.appendChild(opt);
+                if (g[0] === actual) existeActual = true;
+            });
+            if (existeActual) inpGrado.value = actual;
+        }
+
+        function refresh() {
+            const n = sel.value;
+            const esEgresado = n === 'EGRESADO';
+            const esSecundaria = n === 'SECUNDARIA';
+
+            grados.forEach(g => show(g, !esEgresado));
+            show(carrera, esSecundaria || esEgresado);
+            show(promo, esEgresado);
+            lblAnio.textContent = esEgresado ? 'Año de Egreso *' : 'Año cursado *';
+
+            llenarGrados(n);
+
+            if (esEgresado) {
+                inpGrado.value = 'EGRESADO';
+                let dash = inpSeccion.querySelector('option[value="-"]');
+                if (!dash) {
+                    dash = document.createElement('option');
+                    dash.value = '-';
+                    dash.textContent = '-';
+                    inpSeccion.appendChild(dash);
+                }
+                inpSeccion.value = '-';
+            }
+        }
+
+        inpGrado.addEventListener('change', function () {
+            inpGrado.dataset.current = inpGrado.value;
+        });
+
+        sel.addEventListener('change', refresh);
+        refresh();
+    })();
+</script>
+</body>
+</html>

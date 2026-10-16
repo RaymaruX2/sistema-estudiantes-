@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Usuarios')}"></head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/layout :: sidebar('usuarios')}"></aside>
+    <div class="main-area">
+        <header th:replace="~{fragments/layout :: topbar('Usuarios del Sistema', 'Cuentas de acceso administrativo.')}"></header>
+        <main class="page">
+            <div th:replace="~{fragments/layout :: flash}"></div>
+
+            <div class="page-head">
+                <div><h1>Usuarios del Sistema</h1><p>Solo administradores pueden gestionar usuarios.</p></div>
+                <a th:href="@{/usuarios/nuevo}" class="btn btn-primary btn-lg px-3"><i class="bi bi-person-plus-fill"></i> Nuevo Usuario</a>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                        <tr>
+                            <th>Usuario</th><th>Nombre completo</th><th>Email</th>
+                            <th>Rol</th><th>Activo</th><th class="text-end">Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="u : ${usuarios}">
+                            <td class="fw-semibold" th:text="${u.username}"></td>
+                            <td th:text="${u.nombreCompleto}"></td>
+                            <td class="text-muted" th:text="${u.email} ?: '—'"></td>
+                            <td><span class="badge" th:classappend="${'badge-rol-' + u.rol.name()}" th:text="${u.rol}"></span></td>
+                            <td>
+                                <i class="bi" th:classappend="${u.activo} ? 'bi-check-circle-fill text-success' : 'bi-x-circle-fill text-danger'"></i>
+                            </td>
+                            <td class="text-end">
+                                <a th:href="@{/usuarios/{id}/editar(id=${u.id})}" class="btn-icon" title="Editar"><i class="bi bi-pencil"></i></a>
+                                <form th:action="@{/usuarios/{id}/eliminar(id=${u.id})}" method="post" class="d-inline"
+                                      onsubmit="return confirm('¿Eliminar usuario?');">
+                                    <button class="btn-icon danger" title="Eliminar"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>
